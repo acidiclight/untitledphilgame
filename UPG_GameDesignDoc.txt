@@ -1,0 +1,186 @@
+Untitled Phil Game
+==================
+
+STORY
+
+You are Philip Adams (portrayed by the OSFirstTimer penguin).  You awake to find yourself in a lucid dream - you're in the Phase.  After performing a reality check, you hear a loud noise coming from your hallway.  It's coming toward you.  It's Victor Tran.  He's not just a blue happy face, he has arms, legs, and a pew pew gun.  He wants to capture you in the Phase and torment you for the rest of eternity.  You must platform youe way to defeating Victor Tran and escaping the Phase before it's too late!
+
+CONTROLS
+
+Action        Keyboard             Gamepad
+
+Run           WASD,Arrow keys      DPad, Left Stick
+Jump          Space                A
+Crouch        Shift                LT
+Run/Glide     Ctrl                 LB
+
+CHARACTER ABILITIES
+
+1. Walk+Run
+
+  Phil can walk and run on dry land.  Running is performed by holding down the Shift key when moving to either the left or right.
+
+2. Jumping
+
+   When on dry land, Phil can jump to reach higher platforms.  If he gets a running start, he can get more air time to clear moderately large gaps.  If he needs to, he can shift his velocity in mid-air to adjust where he'll land.
+
+3. Gliding
+
+   Take off and fly, young Philip! With a running start and his flappy penguin wings, Phil can jump and glide to clear really large gaps.  He can't shift his velocity during a glide, so he needs to use this ability carefully and with a certain amount of skill.
+
+4. Swimming
+
+   Phil's penguin anatomy doesn't just provide him with the ability to glide.  If he needs to swim across a body of water, his wings turn into flippers and the Jump action allows him to swim upwards or jump out of the water onto dry land.  While swimming, he cannot initiate a Glide, crouch, or run across the ocean floor.  Using his swimming ability, Philip can also ascend up waterfalls to reach platforms.
+
+5. Parkour: Wall-jumping
+
+   Unlocked part-way through the game, Phil can latch onto certain walls to jump off of the wall toward a platform or another wall.  Chaining wall-jumps in quick succession will allow Philip to climb large vertical corridors with ease.
+
+WORLDS
+
+ID  World name                  Palette         Location
+
+0:  Phil's Bedroom              Daytime         Sydney, Australia
+1:  Beach Cityscape             Daytime         Sydney, Australia
+2:  Aren's World                Daytime         IKEA
+3:  Jelle's World               Daytime         Ocean World
+4:  Royce's Rhythmic Fun-time   Evening         Japan
+5:  Phil's Regrets              Cyberspace      ShiftOS's Codebase
+6:  Michael's World             Cyberspace      The Peacenet
+7:  Victor's World              Night           theShell
+8:  Beach Cityscape             Night           Sydney, Australia
+9:  Phil's Bedroom              Night           Sydney, Australia
+10: The Doorway                 Cyberspace      Phil's Brain
+
+LEVEL ID FORMAT
+
+ - World 0 is the prologue world and only has one level.
+ - "x-y[B|M]" refers to a playable level in a world, where:
+    x = world ID
+    y = order in which level occurs in story
+    [B] = if present, this is a bossfight
+    [M] = This is a minigame level, standard player mechanics aren't present
+ - x-yC refers to a cutscene in a world, where:
+    x = the world where the cutscene takes place
+    y = order in which the cutscene occurs in the story
+    C = "this is a cutscene"
+
+
+LEVELS
+
+World   Level Name                                     
+
+  0     Reality Check
+
+         - Player wakes up in the Phase
+         - Performs reality check
+         - Basic movement controls are taught
+         - Player explores room, goes to bedroom door when ready to continue
+         - Loud noise is heard
+         - Victor makes his appearance
+         - Player makes his escape to the balcony
+
+ 1-1    Take Off and Fly
+
+        - Player jumps off balcony and glides onto nearby rooftop
+        - Victor taunts Philip as he glides away
+        - Gliding mechanic is taught
+        - Player must use gliding to get away from Victor Tran
+        - Player gets to their old highschool for shelter
+
+ 1-2    Back to School
+    
+        - Player must traverse through the hallways of the school to find an open classroom
+        - Security guards and teachers are patrolling, waiting to hurt Phil ):
+        - Combat mechanics are taught
+        - Player steals key from a guard and uses it to lock self in safe open classroom
+
+ 1-3C   Aren's Pledge
+
+        - Classroom phone rings
+        - Phil picks it up
+        - It's Aren from bits & Bytes, a talking red swivel chair
+        - Aren wants to help
+        - But he needs Phil to find him in a specific furniture store
+        - Because Aren can't roll down stairs
+        - Phil agrees, goes furniture shopping
+
+ 2-1    Furniture Shopping
+
+        - Player must traverse through huge maze of a furniture store
+        - Must find specific anthropomorphized red swivel chair
+        - Store staff and security are ready to hurt Phil ):
+        - Electronics and appliances cause Phase destabilization ):
+        - Player succeeds after finding red chair in the Office department
+
+ 2-2C   First Destabilization
+
+        - Aren and Phil talk---
+        - Interrupted by Victor Tran
+        - He "hacked into" all the TVs in the store to mess with Philip
+        - MASSIVE Phase destabilization
+
+ 2-2    Escape the Haunted IKEA
+
+        - A LOT of furniture in the store is now alive and able to hurt Phil ):
+        - Phil and Aren must escape to the empty staff lounge for safety
+
+ 2-3C   Aren's Friend
+
+        - Aren somehow manages to use his chair arms to call a friend
+        - It's Jelle, an English-speaking whale who lives in the ocean
+        - Jelle doesn't exactly trust Philip
+        - Jelle blows them both off
+        - Aren tells Phil to find him anyway, and goes with him
+
+ 3-1    Time for a Swim
+
+        - Swimming mechanics are taught
+        - Player must dive underwater to find Jelle's habitat
+        - Fish want to eat Phil ):
+        - Bigger fish want to eat Phil ):
+        - Spikey fish want to stab Phil ):
+        - Whirlpools make Phil lose control and suck him toward a really hungry fish ):
+        - Floating seaweed slows Phil down but doesn't harm him /:
+        - Jelle's habitat is deep and dark and cave-y
+        - Aren has a light to help out but he has trouble keeping up with you
+        - You both reach Jelle's room
+
+ 3-2B   Jelle Bossfight
+
+        - Jelle's impressed at Phil's persistence
+        - But still wants Phil to prove himself worthy of help against Victor Tran
+        - Phil must fight Jelle until Jelle is weak
+        - Swimming combat is used a lot here
+
+ 3-2C   A Common Enemy
+
+        - Jelle's weakened, but he'll be okay.
+        - Y'all three are friends now
+        - The three of you swim to surface
+        - OH NO!! Victor was waiting.... ):
+        - Jelle has the two of you climb on his back so he can use his whale power to swim much faster away from Victor
+
+ 3-3M    Allies (Escape the Ocean)
+
+        - Player now controls Jelle as the three characters swim toward land, away from Victor
+        - Victor is shooting pew pews at you
+        - You have to avoid them
+        - Whirlpools cause Jelle to lose control and the other two characters to fall off. Avoid them. ):
+        - Jelle must dive underneath surface islands to keep moving forward
+        - This is basically the Chrome dino run but you're being shot at, you're a massive whale, and you're swimming to the left of the screen.
+
+ 3-3C   Trip to Japan
+
+        - The land that Jelle arrives at happens to be Japan.
+        - Aren remembers his friend, Royce, who is decidedly a bit of a weeb. Not an insult. It just makes sense for the story.
+        - Jelle can't go forward, but will keep a watchful eye for Victor
+        - Aren and Phil decide to try to find Royce
+
+ 4-1    Meet Royce
+
+        - Traversing through Japanese cityscape, the two of you must find Royce's house
+
+ 4-2M   Royce's Rhythm Run
+
+        - I'm trying to think of a rhythm minigame to put here but I can't.
