@@ -227,16 +227,6 @@ public class PhilipController : MonoBehaviour
         }
     }
 
-    private void OnEnable()
-    {
-        Controls.Enable();
-    }
-
-    private void OnDisable()
-    {
-        Controls.Disable();
-    }
-
     public void Jump(float force)
     {
         if ((_grounded || _swimming) && _allowJump)
@@ -262,103 +252,16 @@ public class PhilipController : MonoBehaviour
 
     private void Update()
     {
-        // Reset latch state
-        _latchedOnLeft = false;
-        _latchedOnRight = false;
+        // Set linear drag based on whether we are swimming or not
+        Body.drag = _swimming ? UnderwaterDrag : NormalDrag;
 
-        // Can we move?
-        if (_allowMovement)
-        {
-            // Perform the ground check if we're allowed to jump.
-            // If we're not allowed to jump then we're always grounded.
-            if (_allowJump)
-            {
-                // If we aren't touching any ground objects then this'll stay false
-                _grounded = false;
-
-                // Determine what objects we're touching in the ground layers.
-                var groundCollisions = Physics2D.OverlapCircleAll(this.FloorCheck.position, _groundCheckRadius, GroundLayers);
-
-                // Go through each collision, if one of the objects isn't us then we're grounded.
-                for (int i = 0; i < groundCollisions.Length; i++)
-                {
-                    if (groundCollisions[i].gameObject != this.gameObject)
-                    {
-                        _grounded = true;
-
-                        // End a glide once we've landed
-                        if (_gliding)
-                        {
-                            SetGlideState(false);
-                        }
-
-                        // Disable walljumping mode if we're in it.
-                        if (_wallJumping)
-                        {
-                            _wallJumping = false;
-
-                            // Tell the animator we're no longer wall-jumping
-                            if (_sendAnimationInfo)
-                            {
-                                Animator.SetBool("WallJumping", false);
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                _grounded = true;
-            }
-
-            // Set linear drag based on whether we are swimming or not
-            if (_swimming)
-            {
-                Body.drag = UnderwaterDrag;
-            }
-            else
-            {
-                Body.drag = NormalDrag;
-
-                // Wall jump latch
-                if (!_grounded && _allowWallJump)
-                {
-                    // Check for right wall
-                    var rightWallColliders = Physics2D.OverlapCircleAll(this.RightWallCheck.position, _groundCheckRadius, GroundLayers);
-
-                    // Check for left walls.
-                    var leftWallColliders = Physics2D.OverlapCircleAll(this.LeftWallCheck.position, _groundCheckRadius, GroundLayers);
-
-                    for (int i = 0; i < leftWallColliders.Length; i++)
-                    {
-                        if (leftWallColliders[i].gameObject != this.gameObject)
-                        {
-                            // End glide if we've smacked our face on the wall :(
-                            if (_gliding)
-                            {
-                                SetGlideState(false);
-                            }
-
-                            _latchedOnLeft = true;
-                        }
-                    }
-
-                    for (int i = 0; i < rightWallColliders.Length; i++)
-                    {
-                        if (rightWallColliders[i].gameObject != this.gameObject)
-                        {
-                            // End glide if we've smacked our face on the wall :(
-                            if (_gliding)
-                            {
-                                SetGlideState(false);
-                            }
-
-                            _latchedOnRight = true;
-                        }
-                    }
-                }
-            }
-        }    
+        // Detect whether we are grounded.
+        DetectGround();
+    
+        // Detect walls on either side of our body to prevent gliding through them
+        // and to enable wall-jumping off them.
+        DetectWall(LeftWallCheck, !_grounded && !_swimming, ref _latchedOnLeft);
+        DetectWall(RightWallCheck,!_grounded && !_swimming, ref _latchedOnRight);
     }
 
     private void FixedUpdate()
@@ -416,24 +319,28 @@ public class PhilipController : MonoBehaviour
         if (_allowMovement)
         {
             // If we're gliding, IMMEDIATELY end the glide
-            if (_gliding)
-            {
-                SetGlideState(false);
-            }
+            SetGlideState(false);
 
             // Since water isn't considered ground, the game needs to do this
             // in order to unlock movement controls when walljumping.
-            if (_wallJumping)
-            {
-                _wallJumping = false;
+            EndWallJump();
 
-                // Tell the animator we're no longer wall-jumping
-                if (_sendAnimationInfo)
-                {
-                    Animator.SetBool("WallJumping", false);
-                }
-            }
+            // And now we're swimming.
             _swimming = true;
+        }
+    }
+
+    private void EndWallJump()
+    {
+        if (_wallJumping)
+        {
+            _wallJumping = false;
+
+            // Tell the animator we're no longer wall-jumping
+            if (_sendAnimationInfo)
+            {
+                Animator.SetBool("WallJumping", false);
+            }
         }
     }
 
@@ -441,4 +348,56 @@ public class PhilipController : MonoBehaviour
     {
         _swimming = false;
     }
+
+    private void DetectGround()
+    {
+        if (_allowJump)
+        {
+            // Detect the ground as if it were a wall.  Grounded state will be set to true only if a ground tile is seen.
+            // Also takes care of ending glides
+            DetectWall(FloorCheck, true, ref _grounded);
+        }
+        else
+        {
+            // The player can never jump and so it's assumed we're always grounded.
+            _grounded = true;
+        }
+
+        // If we're grounded then end a wall jump if we're in one
+        if (_grounded)
+        {
+            EndWallJump();
+        }
+    }
+
+    private void DetectWall(Transform transform, bool condition, ref bool latch)
+    {
+        // Reset the latch state.
+        latch = false;
+
+        // Make sure that the condition is met and that our transform is valid.
+        if (condition && transform != null)
+        {
+            // Check for objects within a radius of the transform we're given
+            var colliders = Physics2D.OverlapCircleAll(transform.position, _groundCheckRadius, GroundLayers);
+
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                if (colliders[i].gameObject != this.gameObject)
+                {
+                    // This ends a glide if we're in one so we don't go through the wall.
+                    SetGlideState(false);
+
+                    // Update the latch state!
+                    latch = true;
+
+                // micro-optimization
+                    break;
+                }
+            }
+        }
+    }
+
+    private void OnEnable() => Controls.Enable();
+    private void OnDisable() => Controls.Disable();
 }
