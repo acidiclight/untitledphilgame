@@ -227,9 +227,9 @@ public class PhilipController : MonoBehaviour
         }
     }
 
-    public void Jump(float force)
+    public void Jump(float force, bool ignoreGroundCheck = false)
     {
-        if ((_grounded || _swimming) && _allowJump)
+        if (((_grounded || ignoreGroundCheck) || _swimming) && _allowJump)
         {
             if (_crouching)
             {
