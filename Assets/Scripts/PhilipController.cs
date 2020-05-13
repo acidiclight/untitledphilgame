@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -8,6 +9,7 @@ using UnityEngine.InputSystem;
 public class PhilipController : MonoBehaviour
 {
     private const float _groundCheckRadius = 0.2f;
+    private CheckpointManagerScript _manager = null;
 
     private Rigidbody2D Body;
     private Animator Animator;
@@ -44,6 +46,25 @@ public class PhilipController : MonoBehaviour
     public float NormalDrag = 1;
     public float WallJumpForce = 500;
     public float GlideSpeed = 60;
+
+    public void Respawn()
+    {
+        if (_manager != null && _manager.CurrentSpawnPoint != null)
+        {
+            this.transform.position = _manager.CurrentSpawnPoint.position;
+        }
+    }
+
+    private void Start()
+    {
+        var cpMgrObject = GameObject.Find("Checkpoint Manager");
+        if (cpMgrObject != null)
+        {
+            _manager = cpMgrObject.GetComponent<CheckpointManagerScript>();
+
+            Respawn();
+        }
+    }
 
     private void Awake()
     {
