@@ -6,24 +6,17 @@ public class CheckpointScript : MonoBehaviour
 {
     private bool _isActive = false;
     private CheckpointManagerScript _manager = null;
-
-    public bool IsSpawnPoint = false;
+    private Animator Animator;
 
     private void Start()
     {
+        Animator = this.GetComponent<Animator>();
+
         var checkpointManagerGameObject = GameObject.Find("Checkpoint Manager");
 
         if (checkpointManagerGameObject != null)
         {
             _manager = checkpointManagerGameObject.GetComponent<CheckpointManagerScript>();
-
-            if (_manager != null)
-            {
-                if(IsSpawnPoint)
-                {
-                    _manager.SetRespawnLocation(this.gameObject.transform);
-                }
-            }
         }
     }
 
@@ -37,6 +30,11 @@ public class CheckpointScript : MonoBehaviour
                 if (_manager != null)
                 {
                     _manager.SetRespawnLocation(this.gameObject.transform);
+
+                    if (Animator != null)
+                    {
+                        Animator.SetTrigger("Activated");
+                    }
                 }
             }
         }

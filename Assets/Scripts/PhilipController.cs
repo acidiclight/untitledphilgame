@@ -49,9 +49,16 @@ public class PhilipController : MonoBehaviour
 
     public void Respawn()
     {
-        if (_manager != null && _manager.CurrentSpawnPoint != null)
+        if (_manager != null)
         {
-            this.transform.position = _manager.CurrentSpawnPoint.position;
+            if (_manager.CurrentSpawnPoint != null)
+            {
+                this.transform.position = _manager.CurrentSpawnPoint.position;
+            }
+            else
+            {
+                this.transform.position = _manager.LevelSpawnPosition;
+            }
         }
     }
 
@@ -62,7 +69,7 @@ public class PhilipController : MonoBehaviour
         {
             _manager = cpMgrObject.GetComponent<CheckpointManagerScript>();
 
-            Respawn();
+            _manager.LevelSpawnPosition = this.transform.position;
         }
     }
 
