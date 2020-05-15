@@ -425,7 +425,7 @@ public class PhilipController : MonoBehaviour
 
             for (int i = 0; i < colliders.Length; i++)
             {
-                if (colliders[i].gameObject != this.gameObject)
+                if (colliders[i].gameObject != this.gameObject && !colliders[i].isTrigger) // <-- second condition fixes issue where checkpoints can be jumped off of.
                 {
                     // This ends a glide if we're in one so we don't go through the wall.
                     SetGlideState(false);
