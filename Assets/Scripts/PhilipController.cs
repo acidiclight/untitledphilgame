@@ -40,6 +40,7 @@ public class PhilipController : MonoBehaviour
     public float CrouchSpeedPercentage = 0.36f;
     public float SwimSpeedPercentage = 0.2f;
     public float JumpForce = 750;
+    public float RunningStartJumpForceMultiplier = 1.5f;
     public float CrouchJumpForcePercentage = 0.5f;
     public bool AllowAirControl = true;
     public float UnderwaterDrag = 4;
@@ -271,7 +272,14 @@ public class PhilipController : MonoBehaviour
                 //
                 // Running starts allow Philip to perform walljumps and
                 // glides.
-                _jumpHadRunningStart = Mathf.Abs(Body.velocity.x) >= 5;
+                _jumpHadRunningStart = Mathf.Abs(Body.velocity.x) >= 5 && _grounded;
+
+                // If the jump had a running start and the jump force is equal
+                // to our default then we should give the player a bit of a boost.
+                if (force == JumpForce && _jumpHadRunningStart)
+                {
+                    force *= RunningStartJumpForceMultiplier;
+                }
             }
 
             Body.AddForce(new Vector2(0, force));
@@ -290,6 +298,12 @@ public class PhilipController : MonoBehaviour
         // and to enable wall-jumping off them.
         DetectWall(LeftWallCheck, !_grounded && !_swimming, ref _latchedOnLeft);
         DetectWall(RightWallCheck,!_grounded && !_swimming, ref _latchedOnRight);
+
+        // Force a respawn at the last checkpoint if we hit the Kill-Y position.
+        if (this.gameObject.transform.position.y <= -1000)
+        {
+            this.Respawn();
+        }
     }
 
     private void FixedUpdate()

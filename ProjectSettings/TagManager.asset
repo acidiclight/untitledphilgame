@@ -16,7 +16,7 @@ TagManager:
   - 
   - Ground
   - Player
-  - 
+  - Backdrop
   - 
   - 
   - 
@@ -39,6 +39,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Backdrop
+    uniqueID: 1921186939
+    locked: 0
   - name: Water
     uniqueID: 3468457129
     locked: 0
