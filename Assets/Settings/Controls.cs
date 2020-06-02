@@ -152,6 +152,33 @@ public class @Controls : IInputActionCollection, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Tutorial"",
+            ""id"": ""29e812a5-3ddd-4169-aa14-caa10042a8eb"",
+            ""actions"": [
+                {
+                    ""name"": ""Dismiss"",
+                    ""type"": ""Button"",
+                    ""id"": ""9b30367c-71b8-4cad-ba33-4c4a4fdc453e"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""51e2ae2d-2911-4512-ba47-a5aea17eb39e"",
+                    ""path"": ""<Keyboard>/enter"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Dismiss"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -162,6 +189,9 @@ public class @Controls : IInputActionCollection, IDisposable
         m_PlayerControls_Jump = m_PlayerControls.FindAction("Jump", throwIfNotFound: true);
         m_PlayerControls_RunGlide = m_PlayerControls.FindAction("Run/Glide", throwIfNotFound: true);
         m_PlayerControls_Walk = m_PlayerControls.FindAction("Walk", throwIfNotFound: true);
+        // Tutorial
+        m_Tutorial = asset.FindActionMap("Tutorial", throwIfNotFound: true);
+        m_Tutorial_Dismiss = m_Tutorial.FindAction("Dismiss", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -264,11 +294,48 @@ public class @Controls : IInputActionCollection, IDisposable
         }
     }
     public PlayerControlsActions @PlayerControls => new PlayerControlsActions(this);
+
+    // Tutorial
+    private readonly InputActionMap m_Tutorial;
+    private ITutorialActions m_TutorialActionsCallbackInterface;
+    private readonly InputAction m_Tutorial_Dismiss;
+    public struct TutorialActions
+    {
+        private @Controls m_Wrapper;
+        public TutorialActions(@Controls wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Dismiss => m_Wrapper.m_Tutorial_Dismiss;
+        public InputActionMap Get() { return m_Wrapper.m_Tutorial; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(TutorialActions set) { return set.Get(); }
+        public void SetCallbacks(ITutorialActions instance)
+        {
+            if (m_Wrapper.m_TutorialActionsCallbackInterface != null)
+            {
+                @Dismiss.started -= m_Wrapper.m_TutorialActionsCallbackInterface.OnDismiss;
+                @Dismiss.performed -= m_Wrapper.m_TutorialActionsCallbackInterface.OnDismiss;
+                @Dismiss.canceled -= m_Wrapper.m_TutorialActionsCallbackInterface.OnDismiss;
+            }
+            m_Wrapper.m_TutorialActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @Dismiss.started += instance.OnDismiss;
+                @Dismiss.performed += instance.OnDismiss;
+                @Dismiss.canceled += instance.OnDismiss;
+            }
+        }
+    }
+    public TutorialActions @Tutorial => new TutorialActions(this);
     public interface IPlayerControlsActions
     {
         void OnMovement(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnRunGlide(InputAction.CallbackContext context);
         void OnWalk(InputAction.CallbackContext context);
+    }
+    public interface ITutorialActions
+    {
+        void OnDismiss(InputAction.CallbackContext context);
     }
 }

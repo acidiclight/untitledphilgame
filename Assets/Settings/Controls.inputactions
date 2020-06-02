@@ -139,6 +139,33 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Tutorial",
+            "id": "29e812a5-3ddd-4169-aa14-caa10042a8eb",
+            "actions": [
+                {
+                    "name": "Dismiss",
+                    "type": "Button",
+                    "id": "9b30367c-71b8-4cad-ba33-4c4a4fdc453e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "51e2ae2d-2911-4512-ba47-a5aea17eb39e",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Dismiss",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

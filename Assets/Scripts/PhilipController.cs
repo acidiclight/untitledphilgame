@@ -30,6 +30,7 @@ public class PhilipController : MonoBehaviour
     private bool _gliding = false;
     private float _glideDirection = 0;
     private bool _jumpHadRunningStart = false;
+    private bool _doPhysicsUpdates = true;
 
     public Transform FloorCheck;
     public Transform CielingCheck;
@@ -144,6 +145,37 @@ public class PhilipController : MonoBehaviour
                 this.Jump(JumpForce);
             }
         };
+
+        Controls.Tutorial.Dismiss.performed += ctx =>
+        {
+            var tutorialDialog = GameObject.Find("Tutorial Dialog");
+            if (tutorialDialog != null)
+            {
+                var tutorialScript = tutorialDialog.GetComponent<TutorialUIScript>();
+                if (tutorialScript != null)
+                {
+                    tutorialScript.HideTutorial();
+                }
+            }
+        };
+    }
+
+    public void SetControlsActive(bool value)
+    {
+        if (value)
+        {
+            Controls.PlayerControls.Enable();
+            Controls.Tutorial.Disable();
+
+            _doPhysicsUpdates = true;
+        } 
+        else
+        {
+            Controls.PlayerControls.Disable();
+            Controls.Tutorial.Enable();
+
+            _doPhysicsUpdates = false;
+        }
     }
 
     private void SetRunState(bool runButtonDown)
@@ -288,6 +320,15 @@ public class PhilipController : MonoBehaviour
 
     private void Update()
     {
+        if (_doPhysicsUpdates && !Body.IsAwake())
+        {
+            Body.WakeUp();
+        }
+        else if (!_doPhysicsUpdates && !Body.IsSleeping())
+        {
+            Body.Sleep();
+        }
+
         // Set linear drag based on whether we are swimming or not
         Body.drag = _swimming ? UnderwaterDrag : NormalDrag;
 
@@ -309,7 +350,7 @@ public class PhilipController : MonoBehaviour
     private void FixedUpdate()
     {
         // Can we move?
-        if (_allowMovement)
+        if (_allowMovement && _doPhysicsUpdates)
         {
             if (_gliding)
             {
