@@ -31,6 +31,7 @@ public class PhilipController : MonoBehaviour
     private float _glideDirection = 0;
     private bool _jumpHadRunningStart = false;
     private bool _doPhysicsUpdates = true;
+    private float _glideTimeLeft = 0;
 
     public Transform FloorCheck;
     public Transform CielingCheck;
@@ -48,6 +49,7 @@ public class PhilipController : MonoBehaviour
     public float NormalDrag = 1;
     public float WallJumpForce = 500;
     public float GlideSpeed = 60;
+    public float GlideTime = 3.0f;
 
     public void Respawn()
     {
@@ -118,7 +120,6 @@ public class PhilipController : MonoBehaviour
             if (_allowMovement)
             {
                 _horizontalAxis = ctx.ReadValue<Vector2>().x;
-                Debug.Log(_horizontalAxis);
             }
         };
 
@@ -200,27 +201,33 @@ public class PhilipController : MonoBehaviour
                         // Can't initiate a glide when latched to a wall.
                         if (!_latchedOnLeft && !_latchedOnRight)
                         {
-                            // We're gliding now.
-                            _gliding = true;
-
-                            // Direction of the glide depends on what the horizontal velocity
-                            // of the player is.
-                            if (Body.velocity.x >= 0.2f)
+                            // Are we ascending and do we have glide time?
+                            if (Body.velocity.y > 0.2f && _glideTimeLeft > 0)
                             {
-                                _glideDirection = 1;
-                            }
-                            else if (Body.velocity.x < -0.2f)
-                            {
-                                _glideDirection = -1;
-                            }
+                                Debug.Log("Glide started.");
 
-                            // Disable Unity's gravity
-                            Body.bodyType = RigidbodyType2D.Kinematic;
+                                // We're gliding now.
+                                _gliding = true;
 
-                            // Update animation state
-                            if (_sendAnimationInfo)
-                            {
-                                Animator.SetBool("Gliding", true);
+                                // Direction of the glide depends on what the horizontal velocity
+                                // of the player is.
+                                if (Body.velocity.x >= 0.2f)
+                                {
+                                    _glideDirection = 1;
+                                }
+                                else if (Body.velocity.x < -0.2f)
+                                {
+                                    _glideDirection = -1;
+                                }
+
+                                // Disable Unity's gravity
+                                Body.bodyType = RigidbodyType2D.Kinematic;
+
+                                // Update animation state
+                                if (_sendAnimationInfo)
+                                {
+                                    Animator.SetBool("Gliding", true);
+                                }
                             }
                         }
                     }
@@ -228,6 +235,8 @@ public class PhilipController : MonoBehaviour
             }
             else if (_gliding && !glideButtonDown)
             {
+                Debug.Log("Glide ended.");
+
                 _gliding = false;
                 _jumpHadRunningStart = false;
                 _glideDirection = 0;
@@ -253,6 +262,8 @@ public class PhilipController : MonoBehaviour
         {
             if (_latchedOnRight)
             {
+                Debug.Log("Left-bound wall-jump.");
+
                 // Wall jump to the left.
                 this.Body.AddForce(new Vector2(
                         -WallJumpForce,
@@ -260,6 +271,9 @@ public class PhilipController : MonoBehaviour
                     ));
 
                 _wallJumping = true;
+
+                // Reset the glide timer.
+                _glideTimeLeft = GlideTime;
 
                 // Tell the animator we're walljumping, and tell it what direction.
                 if (_sendAnimationInfo)
@@ -270,6 +284,8 @@ public class PhilipController : MonoBehaviour
             }
             else if (_latchedOnLeft)
             {
+                Debug.Log("Right-bound wall-jump.");
+
                 // Wall jump to the left.
                 this.Body.AddForce(new Vector2(
                         WallJumpForce,
@@ -277,6 +293,9 @@ public class PhilipController : MonoBehaviour
                     ));
 
                 _wallJumping = true;
+
+                // Reset the glide timer.
+                _glideTimeLeft = GlideTime;
 
                 // Tell the animator we're walljumping, and tell it what direction.
                 if (_sendAnimationInfo)
@@ -306,6 +325,9 @@ public class PhilipController : MonoBehaviour
                 // glides.
                 _jumpHadRunningStart = Mathf.Abs(Body.velocity.x) >= 5 && _grounded;
 
+                // Reset the glide timer.
+                _glideTimeLeft = GlideTime;
+
                 // If the jump had a running start and the jump force is equal
                 // to our default then we should give the player a bit of a boost.
                 if (force == JumpForce && _jumpHadRunningStart)
@@ -313,6 +335,8 @@ public class PhilipController : MonoBehaviour
                     force *= RunningStartJumpForceMultiplier;
                 }
             }
+
+            Debug.Log($"Jump with force of {force}.");
 
             Body.AddForce(new Vector2(0, force));
         }
@@ -339,6 +363,20 @@ public class PhilipController : MonoBehaviour
         // and to enable wall-jumping off them.
         DetectWall(LeftWallCheck, !_grounded && !_swimming, ref _latchedOnLeft);
         DetectWall(RightWallCheck,!_grounded && !_swimming, ref _latchedOnRight);
+
+        // Decrease glide timer if we're gliding and end the glide when we run out of time.
+        if (_gliding)
+        {
+            if (_glideTimeLeft > 0)
+            {
+                _glideTimeLeft -= Time.deltaTime;
+                if (_glideTimeLeft <= 0)
+                {
+                    Debug.Log("Glide should end now.");
+                    SetGlideState(false);
+                }
+            }
+        }
 
         // Force a respawn at the last checkpoint if we hit the Kill-Y position.
         if (this.gameObject.transform.position.y <= -1000)
