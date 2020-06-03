@@ -323,7 +323,7 @@ public class PhilipController : MonoBehaviour
                 //
                 // Running starts allow Philip to perform walljumps and
                 // glides.
-                _jumpHadRunningStart = Mathf.Abs(Body.velocity.x) >= 5 && _grounded;
+                _jumpHadRunningStart = (force == JumpForce) && Mathf.Abs(Body.velocity.x) >= 5 && _grounded;
 
                 // Reset the glide timer.
                 _glideTimeLeft = GlideTime;
@@ -335,8 +335,6 @@ public class PhilipController : MonoBehaviour
                     force *= RunningStartJumpForceMultiplier;
                 }
             }
-
-            Debug.Log($"Jump with force of {force}.");
 
             Body.AddForce(new Vector2(0, force));
         }
