@@ -169,7 +169,7 @@ public class PhilipController : MonoBehaviour
             Controls.Tutorial.Disable();
 
             _doPhysicsUpdates = true;
-        } 
+        }
         else
         {
             Controls.PlayerControls.Disable();
@@ -306,7 +306,7 @@ public class PhilipController : MonoBehaviour
             }
         }
     }
-
+    
     public void Jump(float force, bool ignoreGroundCheck = false)
     {
         if (((_grounded || ignoreGroundCheck) || _swimming) && _allowJump)
@@ -336,6 +336,11 @@ public class PhilipController : MonoBehaviour
                 }
             }
 
+            if (Body.velocity.y < 0)
+            {
+                Body.velocity = new Vector2(Body.velocity.x, 0);
+            }
+
             Body.AddForce(new Vector2(0, force));
         }
     }
@@ -356,11 +361,21 @@ public class PhilipController : MonoBehaviour
 
         // Detect whether we are grounded.
         DetectGround();
-    
+
         // Detect walls on either side of our body to prevent gliding through them
         // and to enable wall-jumping off them.
-        DetectWall(LeftWallCheck, !_grounded && !_swimming, ref _latchedOnLeft);
-        DetectWall(RightWallCheck,!_grounded && !_swimming, ref _latchedOnRight);
+        bool wasLatchedOnLeft = _latchedOnLeft;
+        bool wasLatchedOnRight = _latchedOnRight;
+
+        DetectWall(LeftWallCheck, !_grounded && !_swimming, ref _latchedOnLeft, 0.05f);
+        DetectWall(RightWallCheck,!_grounded && !_swimming, ref _latchedOnRight, 0.05f);
+
+        // If we've JUST hit a wall, then stop moving horizontally to prevent bounces.
+        if ((_latchedOnLeft && !wasLatchedOnLeft) || (_latchedOnRight && !wasLatchedOnRight))
+        {
+            Body.velocity = new Vector2(0, Body.velocity.y);
+        }
+
 
         // Decrease glide timer if we're gliding and end the glide when we run out of time.
         if (_gliding)
@@ -423,11 +438,24 @@ public class PhilipController : MonoBehaviour
                         Animator.SetFloat("WalkSpeed", direction);
                     }
 
-                    // Set the velocity of the rigid body.
-                    Body.velocity = new Vector2(
-                            direction,
-                            Body.velocity.y
-                        );
+                    // If we plan to move in the opposite direction, we'll just invert the horizontal velocity instead.
+                    if ((Body.velocity.x > 0 && direction < 0 || Body.velocity.x < 0 && direction > 0) && _grounded)
+                    {
+                        Body.velocity = new Vector2(-Body.velocity.x, Body.velocity.y);
+                    }
+                    else
+                    {
+                        // If the direction is literally zero... then if we're grounded we'll just kill the velocity.
+                        if (direction == 0 && _grounded)
+                        {
+                            Body.velocity = new Vector2(0, Body.velocity.y);
+                        }
+                        else
+                        {
+                            // Add the horizontal force of the walk.
+                            Body.AddForce(new Vector2(direction, 0));
+                        }
+                    }
                 }
             }
         }
@@ -489,7 +517,7 @@ public class PhilipController : MonoBehaviour
         }
     }
 
-    private void DetectWall(Transform transform, bool condition, ref bool latch)
+    private void DetectWall(Transform transform, bool condition, ref bool latch, float radius = _groundCheckRadius)
     {
         // Reset the latch state.
         latch = false;
@@ -498,7 +526,7 @@ public class PhilipController : MonoBehaviour
         if (condition && transform != null)
         {
             // Check for objects within a radius of the transform we're given
-            var colliders = Physics2D.OverlapCircleAll(transform.position, _groundCheckRadius, GroundLayers);
+            var colliders = Physics2D.OverlapCircleAll(transform.position, radius, GroundLayers);
 
             for (int i = 0; i < colliders.Length; i++)
             {

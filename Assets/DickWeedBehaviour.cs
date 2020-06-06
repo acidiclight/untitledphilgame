@@ -53,6 +53,9 @@ public class DickWeedBehaviour : MonoBehaviour
         // Check for the player hitting our top.
         if (PerformPlayerCheck(_playerCheck))
         {
+            // Bounce the player off of us
+            this.BouncePlayer();
+
             // We're fucked.
             this.gameObject.SetActive(false);
             return;
@@ -79,6 +82,20 @@ public class DickWeedBehaviour : MonoBehaviour
             }
         }
     }
+
+    private void BouncePlayer()
+    {
+        var phil = GameObject.FindGameObjectWithTag(PlayerTag);
+        if (phil != null)
+        {
+            var philController = phil.GetComponent<PhilipController>();
+            if (philController != null)
+            {
+                philController.Jump(philController.JumpForce, true);
+            }
+        }
+    }
+
 
     private void FixedUpdate()
     {
@@ -113,7 +130,6 @@ public class DickWeedBehaviour : MonoBehaviour
         {
             if (collision.gameObject != this.gameObject)
             {
-
                 return true;
             }
         }
