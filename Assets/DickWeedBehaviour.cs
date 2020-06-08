@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Networking.PlayerConnection;
 using UnityEngine;
 
 public class DickWeedBehaviour : MonoBehaviour
@@ -10,7 +11,6 @@ public class DickWeedBehaviour : MonoBehaviour
     public string PlayerTag = "Player";
 
     private Transform _groundCheck;
-    private Transform _playerCheck;
     private Transform _leftCheck;
     private Transform _rightCheck;
     private float _walkSpeed = 200;
@@ -26,7 +26,6 @@ public class DickWeedBehaviour : MonoBehaviour
         _groundCheck = this.gameObject.transform.Find("Ground Check");
         _leftCheck = this.gameObject.transform.Find("Left Wall Check");
         _rightCheck = this.gameObject.transform.Find("Right Wall Check");
-        _playerCheck = this.gameObject.transform.Find("Player Check");
     }
 
     // Update is called once per frame
@@ -50,23 +49,26 @@ public class DickWeedBehaviour : MonoBehaviour
 
         _grounded = PerformOverlapCheck(_groundCheck);
 
-        // Check for the player hitting our top.
-        if (PerformPlayerCheck(_playerCheck))
-        {
-            // Bounce the player off of us
-            this.BouncePlayer();
-
-            // We're fucked.
-            this.gameObject.SetActive(false);
-            return;
-        }
-
         // Find the player on either of our other sides.
         if (PerformPlayerCheck(_leftCheck) || PerformPlayerCheck(_rightCheck) || PerformPlayerCheck(_groundCheck))
         {
             // TODO: Phil health.
             KillPlayer();
             return;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == PlayerTag)
+        {
+            var philipController = collision.gameObject.GetComponent<PhilipController>();
+            if (philipController != null)
+            {
+                philipController.AddScore(10);
+                philipController.Jump(philipController.JumpForce, true);
+                this.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -82,20 +84,6 @@ public class DickWeedBehaviour : MonoBehaviour
             }
         }
     }
-
-    private void BouncePlayer()
-    {
-        var phil = GameObject.FindGameObjectWithTag(PlayerTag);
-        if (phil != null)
-        {
-            var philController = phil.GetComponent<PhilipController>();
-            if (philController != null)
-            {
-                philController.Jump(philController.JumpForce, true);
-            }
-        }
-    }
-
 
     private void FixedUpdate()
     {

@@ -11,6 +11,8 @@ public class PhilipController : MonoBehaviour
     private const float _groundCheckRadius = 0.2f;
     private CheckpointManagerScript _manager = null;
 
+    private int _score = 0;
+    private TextMeshProUGUI _scoreText = null;
     private Rigidbody2D Body;
     private Animator Animator;
     private Controls Controls;
@@ -68,6 +70,8 @@ public class PhilipController : MonoBehaviour
 
     private void Start()
     {
+        this._scoreText = GameObject.Find("Score").gameObject.GetComponent<TextMeshProUGUI>();
+
         var cpMgrObject = GameObject.Find("Checkpoint Manager");
         if (cpMgrObject != null)
         {
@@ -258,7 +262,7 @@ public class PhilipController : MonoBehaviour
     {
         // Walljumps can only occur if Philip had a running start going into
         // the jump.
-        if (_jumpHadRunningStart)
+        if (!_grounded && !_gliding && !_swimming && Body.velocity.y < 0)
         {
             if (_latchedOnRight)
             {
@@ -347,6 +351,11 @@ public class PhilipController : MonoBehaviour
 
     private void Update()
     {
+        if (_scoreText != null)
+        {
+            _scoreText.text = $"Score: {_score}";
+        }
+
         if (_doPhysicsUpdates && !Body.IsAwake())
         {
             Body.WakeUp();
@@ -547,4 +556,9 @@ public class PhilipController : MonoBehaviour
 
     private void OnEnable() => Controls.Enable();
     private void OnDisable() => Controls.Disable();
+
+    public void AddScore(int score)
+    {
+        _score = Math.Max(0, _score + score);
+    }
 }

@@ -31,6 +31,12 @@ public class CheckpointScript : MonoBehaviour
                 {
                     _manager.SetRespawnLocation(this.gameObject.transform);
 
+                    var phil = collision.gameObject.GetComponent<PhilipController>();
+                    if (phil != null)
+                    {
+                        phil.AddScore(25);
+                    }
+
                     if (Animator != null)
                     {
                         Animator.SetTrigger("Activated");
